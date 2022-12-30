@@ -1,3 +1,3 @@
-package module2
+package main
 
 const VERSION = "VERSION"

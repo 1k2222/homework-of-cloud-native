@@ -1,4 +1,4 @@
-package module2
+package main
 
 import (
 	"fmt"
@@ -7,19 +7,6 @@ import (
 	"os"
 	"strings"
 )
-
-type Handler func(http.ResponseWriter, *http.Request)
-
-type Middleware func(*http.Request)
-
-func NewHandler(h Handler, middlewares ...Middleware) Handler {
-	return func(w http.ResponseWriter, r *http.Request) {
-		for _, m := range middlewares {
-			m(r)
-		}
-		h(w, r)
-	}
-}
 
 func HandlerGreet(w http.ResponseWriter, r *http.Request) {
 	for k, v := range r.Header {
@@ -35,6 +22,9 @@ func HandlerGreet(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlerHealthz(w http.ResponseWriter, r *http.Request) {
+	if _, err := w.Write([]byte("OK\n")); err != nil {
+		log.Printf("write response failed, err: %s", err.Error())
+	}
 	w.WriteHeader(http.StatusOK)
 	log.Printf("access log, IP: %s, Path: %s, HTTP Code: %d", r.Host, r.URL.Path, http.StatusOK)
 }
@@ -42,7 +32,11 @@ func HandlerHealthz(w http.ResponseWriter, r *http.Request) {
 func RunServer() {
 	http.HandleFunc("/greet", HandlerGreet)
 	http.HandleFunc("/healthz", HandlerHealthz)
-	if err := http.ListenAndServe(":80", nil); err != nil {
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
+}
+
+func main() {
+	RunServer()
 }
