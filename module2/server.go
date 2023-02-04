@@ -12,6 +12,18 @@ import (
 	"time"
 )
 
+func HandlerGetConfigs(w http.ResponseWriter, r *http.Request) {
+	c, err := os.ReadFile("/etc/httpserver/config.properties")
+	if err != nil {
+		log.Println("read config failed, err: %w", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if _, err := w.Write(c); err != nil {
+		log.Println("write config to client failed, err: %w", err)
+	}
+}
+
 func HandlerGreet(w http.ResponseWriter, r *http.Request) {
 	for k, v := range r.Header {
 		w.Header().Add(k, strings.Join(v, ","))
@@ -41,6 +53,7 @@ func HandlerHealthz(w http.ResponseWriter, r *http.Request) {
 
 func RunServer() {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/get_configs", HandlerGetConfigs)
 	mux.HandleFunc("/greet", HandlerGreet)
 	mux.HandleFunc("/delayed_greet", HandlerDelayedGreet)
 	mux.HandleFunc("/healthz", HandlerHealthz)
