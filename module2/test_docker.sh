@@ -1,19 +1,17 @@
 #!/bin/bash
 
 name=1k2222/homework-of-cloud-native-http-server-in-docker
-tag=0.0.2
+tag=0.0.3
 
 # 构建本地镜像
 sudo docker ps -a | grep "module2" | awk '{print $1}' | xargs -r sudo docker rm -f
 sudo docker images | grep $name | awk '{print $3}' | xargs -r sudo docker rmi -f
 sudo docker build \
-    --build-arg "HTTP_PROXY=192.168.31.107:2022" \
-    --build-arg "HTTPS_PROXY=192.168.31.107:2022" \
     --network host \
     -t $name:$tag .
 
 # 将镜像推送至 docker 官方镜像仓库
-sudo docker push $name:$tag
+#sudo docker push $name:$tag
 
 image_id=$(sudo docker images | grep $name | awk '{print $3}')
 echo "image id: $image_id"
