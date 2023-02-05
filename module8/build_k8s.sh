@@ -12,5 +12,8 @@ fi
 
 echo "2. 部署k8s"
 kubectl create configmap configmap-of-httpserver --from-file=config.properties
-kubectl create -f pod.yaml
+kubectl create -f deployment.yaml
 kubectl create -f nodeport.yaml
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=cncamp.com/O=cncamp" -addext "subjectAltName = DNS:myhttpserver.xxx"
+kubectl create secret tls secret-of-httpserver-in-k8s --cert=./tls.crt --key=./tls.key

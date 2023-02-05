@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-of-httpserver-in-k8s
+  labels:
+    app: httpserver-in-k8s
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpserver-in-k8s
+  template:
+    metadata:
+      labels:
+        app: httpserver-in-k8s
+    spec:
+      containers:
+        - name: httpserver-in-k8s
+          image: 1k2222/homework-of-cloud-native-http-server-in-docker:0.0.3
+          readinessProbe:
+              httpGet:
+                  path: /healthz
+                  port: 8080
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              successThreshold: 2
+          volumeMounts:
+              - name: config-volume-of-httpserver
+                mountPath: /etc/httpserver/
+      volumes:
+        - name: config-volume-of-httpserver
+          configMap:
+              name: configmap-of-httpserver
