@@ -3,13 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/1k2222/homework-of-cloud-native/module2/metrics"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func HandlerGetConfigs(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +47,15 @@ func HandlerDelayedGreet(w http.ResponseWriter, r *http.Request) {
 	HandlerGreet(w, r)
 }
 
+func HandlerRandomDelayedGreet(w http.ResponseWriter, r *http.Request) {
+	timer := metrics.NewTimer()
+	defer timer.ObserveTotal()
+	timeout := time.Duration(rand.Int()%2000) + 1
+	log.Printf("waiting for %dms...", timeout)
+	time.Sleep(time.Millisecond * timeout)
+	HandlerGreet(w, r)
+}
+
 func HandlerHealthz(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte("OK\n")); err != nil {
 		log.Printf("write response failed, err: %s", err.Error())
@@ -56,7 +69,9 @@ func RunServer() {
 	mux.HandleFunc("/get_configs", HandlerGetConfigs)
 	mux.HandleFunc("/greet", HandlerGreet)
 	mux.HandleFunc("/delayed_greet", HandlerDelayedGreet)
+	mux.HandleFunc("/random_delayed_greet", HandlerRandomDelayedGreet)
 	mux.HandleFunc("/healthz", HandlerHealthz)
+	mux.Handle("/metrics", promhttp.Handler())
 
 	server := &http.Server{
 		Addr:    ":8080",
