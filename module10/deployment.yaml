@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-of-httpserver-with-prometheus
+  labels:
+    app: httpserver-with-prometheus
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpserver-with-prometheus
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8090"
+      labels:
+        app: httpserver-with-prometheus
+    spec:
+      containers:
+        - name: httpserver-with-prometheus
+          image: 1k2222/homework-of-cloud-native-http-server-in-docker:0.0.4
+          args: ["-port=8090"]
+          readinessProbe:
+              httpGet:
+                  path: /healthz
+                  port: 8090
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              successThreshold: 2
+          volumeMounts:
+              - name: config-volume-of-httpserver
+                mountPath: /etc/httpserver/
+      volumes:
+        - name: config-volume-of-httpserver
+          configMap:
+              name: configmap-of-httpserver

@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-of-httpserver-with-prometheus
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+    - hosts:
+        - myhttpserver.prometheus
+      secretName: secret-of-httpserver-with-prometheus
+  rules:
+    - host: myhttpserver.prometheus
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: service-of-httpserver-with-prometheus
+                port:
+                  number: 8090
