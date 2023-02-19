@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"github.com/1k2222/homework-of-cloud-native/module2/metrics"
 	"log"
@@ -73,8 +74,11 @@ func RunServer() {
 	mux.HandleFunc("/healthz", HandlerHealthz)
 	mux.Handle("/metrics", promhttp.Handler())
 
+	port := flag.String("port", "8080", "server port")
+	flag.Parse()
+
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + *port,
 		Handler: mux,
 	}
 	go server.ListenAndServe()
