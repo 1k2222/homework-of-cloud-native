@@ -66,6 +66,8 @@ func HandlerHealthz(w http.ResponseWriter, r *http.Request) {
 }
 
 func RunServer() {
+	metrics.Register()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/get_configs", HandlerGetConfigs)
 	mux.HandleFunc("/greet", HandlerGreet)
